@@ -1,4 +1,3 @@
-
 version: "3.8"
 services:
   postgres:
@@ -9,45 +8,7 @@ services:
       POSTGRES_DB: api_nexus
     ports:
       - "5432:5432"
-      prometheus:
-    image: prom/prometheus:v2.45.0
-    ports:
-      - "9090:9090"
-      ai-intelligence:
-    build:
-      context: ./services/ai-intelligence-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - nexus_network
-
-volumes:
-      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - nexus_network
-
-  grafana:
-    image: grafana/grafana:10.0.3
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-    networks:
-      - nexus_network
-
-  ai-intelligence:
-    build:
-      context: ./services/ai-intelligence-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - nexus_network
-
-volumes:
+    volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - nexus_network
@@ -56,45 +17,7 @@ volumes:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-      prometheus:
-    image: prom/prometheus:v2.45.0
-    ports:
-      - "9090:9090"
-      ai-intelligence:
-    build:
-      context: ./services/ai-intelligence-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - nexus_network
-
-volumes:
-      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - nexus_network
-
-  grafana:
-    image: grafana/grafana:10.0.3
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-    networks:
-      - nexus_network
-
-  ai-intelligence:
-    build:
-      context: ./services/ai-intelligence-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - nexus_network
-
-volumes:
+    volumes:
       - redis_data:/data
     networks:
       - nexus_network
@@ -129,16 +52,7 @@ volumes:
     image: prom/prometheus:v2.45.0
     ports:
       - "9090:9090"
-      ai-intelligence:
-    build:
-      context: ./services/ai-intelligence-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - nexus_network
-
-volumes:
+    volumes:
       - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - nexus_network
@@ -163,6 +77,83 @@ volumes:
     networks:
       - nexus_network
 
+  identity-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args:
+        SERVICE_NAME: identity-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    networks:
+      - nexus_network
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args:
+        SERVICE_NAME: organization-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    networks:
+      - nexus_network
+
+  api-registry-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args:
+        SERVICE_NAME: api-registry-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+    networks:
+      - nexus_network
+
+  edge-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args:
+        SERVICE_NAME: edge-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity-service
+      - api-registry-service
+    networks:
+      - nexus_network
+
+  web-console:
+    build:
+      context: ./apps/web-console
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web-console:/app
+      - /app/node_modules
+    networks:
+      - nexus_network
+
+  developer-portal:
+    build:
+      context: ./apps/developer-portal
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./apps/developer-portal:/app
+      - /app/node_modules
+    networks:
+      - nexus_network
+
 volumes:
   postgres_data:
   redis_data:
@@ -170,6 +161,4 @@ volumes:
 networks:
   nexus_network:
     driver: bridge
-
-
 
