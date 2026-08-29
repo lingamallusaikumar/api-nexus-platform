@@ -18,8 +18,9 @@ class AnomalyResult(BaseModel):
 @router.post("/detect", response_model=AnomalyResult)
 def detect_anomaly(data: TrafficData):
     # Stub: Normally pass to scikit-learn model
-    score = random.random()
+    score = min(1.0, data.error_rate * 5.0 + random.random() * 0.2)
     is_anomaly = score > 0.8
     desc = "Traffic pattern normal." if not is_anomaly else "Unusual spike in latency detected."
     return AnomalyResult(is_anomaly=is_anomaly, anomaly_score=score, description=desc)
+
 
