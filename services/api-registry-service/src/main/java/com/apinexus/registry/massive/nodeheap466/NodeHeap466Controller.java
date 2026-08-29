@@ -1,0 +1,26 @@
+package com.apinexus.registry.massive.nodeheap466;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/massive/nodeheap466")
+public class NodeHeap466Controller {
+    private final NodeHeap466Service service;
+    
+    public NodeHeap466Controller(NodeHeap466Service service) { this.service = service; }
+    
+    @GetMapping
+    public List<NodeHeap466> getAll() { return service.findAll(); }
+    
+    @PostMapping
+    public NodeHeap466 create(@RequestBody NodeHeap466 entity) { return service.save(entity); }
+    
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) { service.deleteById(id); }
+    
+    @PostMapping("/execute")
+    public String execute() {
+        service.executeCustomLogic();
+        return "Executed NodeHeap466";
+    }
+}
