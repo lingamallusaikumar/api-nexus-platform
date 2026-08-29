@@ -1,0 +1,22 @@
+server:
+  port: 8087
+spring:
+  application:
+    name: workflow-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: workflow-group
+  datasource:
+    url: jdbc:postgresql://localhost:5432/api_nexus
+    username: nexus_user
+    password: nexus_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+

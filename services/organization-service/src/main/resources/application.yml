@@ -1,0 +1,25 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: organization-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/api_nexus
+    username: nexus_user
+    password: nexus_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,175 @@
+
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: nexus_user
+      POSTGRES_PASSWORD: nexus_password
+      POSTGRES_DB: api_nexus
+    ports:
+      - "5432:5432"
+      prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+      ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - nexus_network
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - nexus_network
+
+  ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexus_network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+      prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+      ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - nexus_network
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - nexus_network
+
+  ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+      - redis_data:/data
+    networks:
+      - nexus_network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - nexus_network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - nexus_network
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+      ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - nexus_network
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - nexus_network
+
+  ai-intelligence:
+    build:
+      context: ./services/ai-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nexus_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  nexus_network:
+    driver: bridge
+
+
+
