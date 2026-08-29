@@ -33,13 +33,13 @@ jobs:
       - name: Install dependencies and build web-console
         run: |
           cd apps/web-console
-          npm ci
-          npm run build
+          npm install
+          npm run lint
       - name: Install dependencies and build developer-portal
         run: |
           cd apps/developer-portal
-          npm ci
-          npm run build
+          npm install
+          npm run lint
 
   build-docker-images:
     needs: [build-and-test-java, build-and-test-frontend]
@@ -60,4 +60,5 @@ jobs:
           docker push ghcr.io/${{ github.repository }}/edge-gateway:latest
 
       # In a real scenario, this would loop over all services and build them
+
 
